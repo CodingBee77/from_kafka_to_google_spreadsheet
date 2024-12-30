@@ -1,20 +1,25 @@
 import logging
-from quixstreams import Application
 from datetime import timedelta
+from pydantic import BaseModel
 import pygsheets
+from quixstreams import Application
 
 
 # TODO: define returning object Temperature using Pydantic
 
-def initializer_fn(msg: dict) -> dict:
+class Temperature(BaseModel):
+    open: float
+    close: float
+    high: float
+    low: float
+
+
+def initializer_fn(msg: dict) -> Temperature:
     temperature = msg['current']['temperature_2m']
-    return {"open": temperature,
-            "close": temperature,
-            "high": temperature,
-            "low": temperature}
+    return Temperature(**temperature)
 
 
-def reducer_fn(summary: dict, msg: dict) -> dict:
+def reducer_fn(summary: dict, msg: dict) -> Temperature:
     """
 
     Reducer function combines 2 given arguments into a new aggregated value and returns it.
@@ -25,12 +30,7 @@ def reducer_fn(summary: dict, msg: dict) -> dict:
     :return: new aggregated value
     """
     temperature = msg['current']['temperature_2m']
-    return {
-        "open": summary["open"],
-        "close": temperature,
-        "high": max(summary["high"], temperature),
-        "low": min(summary["low"], temperature)
-    }
+    return Temperature(open=summary["open"], close=temperature, high=max(summary["high"], temperature), low=min(summary["low"], temperature))
 
 
 def main():
