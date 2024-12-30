@@ -1,8 +1,8 @@
 import logging
 from quixstreams import Application
-from uuid import uuid4
 from datetime import timedelta
 import pygsheets
+
 
 # TODO: define returning object Temperature using Pydantic
 
